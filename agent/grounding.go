@@ -518,13 +518,13 @@ func (s *discoveryState) pendingDatabaseComputation() string {
 		}
 	}
 	if allowsRankedRows {
-		return "database_computation_required: this request asks for an extreme or ranking, but the run only has row-list or failed evidence. Execute one distinct database-side query that applies order_by on the requested ranked column together with a limit, then answer from that result."
+		return "database_computation_required: this request asks for an extreme or ranking, but the run only has row-list or failed evidence. Use execute_graphql to run one distinct database-side query that applies order_by on the requested ranked column together with a limit of 1, then answer from that result. Example: execute_graphql({query: '{ table_name(limit: 1, order_by: {column_name: desc}) { column_name } }'}). Do not retry execute_saved_query for this request."
 	}
 	requirement := "a successful database-side aggregate field such as count_/sum_/avg_/min_/max_<column>"
 	if needsAggregateOrder {
 		requirement += " with aggregate order_by for the requested ranking"
 	}
-	return "database_computation_required: this request asks for a count, total, average, extreme, or ranking, but the run only has row-list or failed evidence. Execute " + requirement + " and answer from that result; do not calculate from fetched rows."
+	return "database_computation_required: this request asks for a count, total, average, extreme, or ranking, but the run only has row-list or failed evidence. Use execute_graphql to run a query with " + requirement + " and answer from that result. Example for counts: execute_graphql({query: '{ table_name { group_column count_id } }'}). Do not retry execute_saved_query; do not calculate from fetched rows."
 }
 
 // databaseOrderedRowIntent recognizes extrema where the user wants the record
