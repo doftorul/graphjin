@@ -18,3 +18,5 @@ use (
 	./tests
 	./wasm
 )
+
+replace github.com/ax-llm/ax/packages/go => /home/lucian/Projects/ambrosia/ax/packages/go
