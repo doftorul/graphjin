@@ -332,6 +332,48 @@ func (s *CatalogSnapshot) CardEdges(cardID string) []CatalogEdge {
 	return out
 }
 
+// RelatedCards returns cards connected to cardID via edges of the given kind.
+// It traverses the catalog graph (card → nodes → edges → target nodes → cards),
+// which is built for all source types. General graph operation for any edge kind.
+func (s *CatalogSnapshot) RelatedCards(cardID, edgeKind string) []CatalogCard {
+	if s == nil {
+		return nil
+	}
+	sourceNodeIDs := make(map[string]bool)
+	for _, node := range s.Nodes {
+		if node.CardID == cardID {
+			sourceNodeIDs[node.ID] = true
+		}
+	}
+	if len(sourceNodeIDs) == 0 {
+		return nil
+	}
+	targetNodeIDs := make(map[string]bool)
+	for _, edge := range s.Edges {
+		if edge.Kind != edgeKind {
+			continue
+		}
+		if sourceNodeIDs[edge.FromID] {
+			targetNodeIDs[edge.ToID] = true
+		}
+		if sourceNodeIDs[edge.ToID] {
+			targetNodeIDs[edge.FromID] = true
+		}
+	}
+	if len(targetNodeIDs) == 0 {
+		return nil
+	}
+	var out []CatalogCard
+	for _, node := range s.Nodes {
+		if targetNodeIDs[node.ID] && node.CardID != "" {
+			if card, ok := s.Card(node.CardID); ok {
+				out = append(out, card)
+			}
+		}
+	}
+	return out
+}
+
 func catalogMetadataSnapshot(md *MetadataSnapshot) *catalog.MetadataSnapshot {
 	if md == nil {
 		return &catalog.MetadataSnapshot{}

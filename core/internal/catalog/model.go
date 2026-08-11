@@ -141,10 +141,10 @@ type Card struct {
 	OutputSchemaJSON string `json:"output_schema_json,omitempty"`
 	SafetyJSON       string `json:"safety_json,omitempty"`
 	GraphQLQuery     string `json:"graphql_query,omitempty"`
-	GraphQLMutation  string `json:"graphql_mutation,omitempty"`
-	ColumnsJSON      string `json:"columns,omitempty"`
-	CreatedAt        string `json:"created_at,omitempty"`
-	UpdatedAt        string `json:"updated_at,omitempty"`
+	GraphQLMutation  string  `json:"graphql_mutation,omitempty"`
+	Columns          []Card  `json:"columns,omitempty"`
+	CreatedAt        string  `json:"created_at,omitempty"`
+	UpdatedAt        string  `json:"updated_at,omitempty"`
 }
 
 type CardDetail struct {
