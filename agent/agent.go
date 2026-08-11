@@ -1360,6 +1360,16 @@ func catalogDetailResult(snap *core.CatalogSnapshot, ids []string) catalogResult
 		if !ok {
 			continue
 		}
+		// Inline column data for table cards so callers can access card.columns
+		// directly instead of searching through details for the key_columns section.
+		if card.Kind == "table" {
+			for _, d := range snap.CardDetails(id) {
+				if d.Section == "key_columns" && d.DataJSON != "" {
+					card.ColumnsJSON = d.DataJSON
+					break
+				}
+			}
+		}
 		out.Cards = append(out.Cards, card)
 		out.Details = append(out.Details, snap.CardDetails(id)...)
 		out.Edges = append(out.Edges, snap.CardEdges(id)...)

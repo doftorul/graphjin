@@ -289,7 +289,11 @@ func (p *PreparedRun) Execute(ctx context.Context) (*Report, error) {
 				return p.finishIncomplete(RunStatusInterrupted, "interrupted", err)
 			}
 			if environmentCode != "" {
-				return p.finishIncomplete(RunStatusEnvironmentFailed, environmentCode, nil)
+				// Transient provider errors should not abort the entire benchmark.
+				// Record the failed episode and continue to the next task.
+				initial[task.ID] = append(initial[task.ID], episode)
+				allEpisodes = append(allEpisodes, episode)
+				continue
 			}
 			initial[task.ID] = append(initial[task.ID], episode)
 			allEpisodes = append(allEpisodes, episode)
@@ -321,7 +325,9 @@ func (p *PreparedRun) Execute(ctx context.Context) (*Report, error) {
 				return p.finishIncomplete(RunStatusInterrupted, "interrupted", err)
 			}
 			if environmentCode != "" {
-				return p.finishIncomplete(RunStatusEnvironmentFailed, environmentCode, nil)
+				confirmation[task.ID] = append(confirmation[task.ID], episode)
+				allEpisodes = append(allEpisodes, episode)
+				continue
 			}
 			confirmation[task.ID] = append(confirmation[task.ID], episode)
 			allEpisodes = append(allEpisodes, episode)

@@ -142,6 +142,7 @@ type Card struct {
 	SafetyJSON       string `json:"safety_json,omitempty"`
 	GraphQLQuery     string `json:"graphql_query,omitempty"`
 	GraphQLMutation  string `json:"graphql_mutation,omitempty"`
+	ColumnsJSON      string `json:"columns,omitempty"`
 	CreatedAt        string `json:"created_at,omitempty"`
 	UpdatedAt        string `json:"updated_at,omitempty"`
 }
