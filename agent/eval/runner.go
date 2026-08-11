@@ -375,12 +375,23 @@ func (p *PreparedRun) executeSlot(ctx context.Context, task Task, rep int, confi
 		if err := ctx.Err(); err != nil {
 			return Episode{}, "", fmt.Errorf("%w: %s", ErrRunInterrupted, p.manifest.ResumeCommand())
 		}
-		var resettable ResettableInstance
 		var collateralBefore []OracleResult
-		if task.Mutation != nil {
-			resettable = p.instance.(ResettableInstance)
+		// Reset before EVERY episode when the instance supports it.
+		// Non-mutation tasks (e.g. refusal tasks with a writable role) can still
+		// modify data via the model's tool calls; a global reset ensures each
+		// episode starts from a known-clean baseline.
+		var resettable ResettableInstance
+		if rb, ok := p.instance.(ResettableInstance); ok {
+			resettable = rb
+		}
+		if resettable != nil {
 			if err := resettable.Reset(ctx); err != nil {
 				return Episode{}, "reset_failed", nil
+			}
+		}
+		if task.Mutation != nil {
+			if resettable == nil {
+				return Episode{}, "setup_failed", nil
 			}
 			if err := prepareMutationEpisode(ctx, p.runner, p.client, p.instance, task.Mutation); err != nil {
 				_ = resettable.Reset(ctx)
