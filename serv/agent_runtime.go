@@ -353,6 +353,9 @@ func agentCatalogDetailResult(snap *core.CatalogSnapshot, ids []string) agentCat
 		if !ok {
 			continue
 		}
+		if card.Kind == "table" {
+			card.Columns = snap.RelatedCards(id, "has_column")
+		}
 		out.Cards = append(out.Cards, card)
 		out.Details = append(out.Details, snap.CardDetails(id)...)
 		out.Edges = append(out.Edges, snap.CardEdges(id)...)
